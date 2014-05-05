@@ -663,9 +663,9 @@ class Doctrine_Core
                             $className = $classPrefix . $className;
                         }
 
-                        if ( ! class_exists($className, false)) {
-                            if ($modelLoading == Doctrine_Core::MODEL_LOADING_CONSERVATIVE || $modelLoading == Doctrine_Core::MODEL_LOADING_PEAR) {
-                                self::loadModel($className, $file->getPathName());
+                        if ( ! class_exists($className, false) && ! interface_exists($className, false)) {
+                            if (false && ($modelLoading == Doctrine_Core::MODEL_LOADING_CONSERVATIVE || $modelLoading == Doctrine_Core::MODEL_LOADING_PEAR)) {
+                                 self::loadModel($className, $file->getPathName());
 
                                 $loadedModels[$className] = $className;
                             } else {
