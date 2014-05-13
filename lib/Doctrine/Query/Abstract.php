@@ -1142,13 +1142,34 @@ abstract class Doctrine_Query_Abstract
         $copy->free();
 
         if ($componentsBefore !== $componentsAfter) {
-            if (empty($componentsBefore)) {
-                return $componentsAfter;
-            }
-            return array_diff($componentsAfter, $componentsBefore);
+            return $this->_arrayDiffRecursive($componentsAfter, $componentsBefore);
         } else {
             return $componentsAfter;
         }
+    }
+
+    protected function _arrayDiffRecursive($a, $b)
+    {
+        $aReturn = array();
+
+        foreach ($a as $mKey => $mValue) {
+            if (array_key_exists($mKey, $b)) {
+                if (is_array($mValue)) {
+                    $aRecursiveDiff = $this->_arrayDiffRecursive($mValue, $b[$mKey]);
+                    if (count($aRecursiveDiff)) {
+                        $aReturn[$mKey] = $aRecursiveDiff;
+                    }
+                } else {
+                    if ($mValue != $b[$mKey]) {
+                        $aReturn[$mKey] = $mValue;
+                    }
+                }
+            } else {
+                $aReturn[$mKey] = $mValue;
+            }
+        }
+
+        return $aReturn;
     }
 
     /**
@@ -1418,6 +1439,8 @@ abstract class Doctrine_Query_Abstract
             if ($value instanceof Doctrine_Expression) {
                 $value = $value->getSql();
                 unset($params[$k]);
+            } elseif (!is_numeric($k)) {
+                $value = $k;
             } else {
                 $value = '?';
             }
